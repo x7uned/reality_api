@@ -37,7 +37,11 @@ export class SpaceService {
       })
       .then((e) => e.spaces);
 
-    return result;
+    if (result) {
+      return { spaces: result };
+    } else {
+      return null;
+    }
   }
 
   async updateSpace(updateSpaceDto: UpdateSpaceDto, userId: number) {
