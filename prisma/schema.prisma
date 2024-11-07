@@ -8,20 +8,20 @@ datasource db {
 }
 
 model User {
-  id           Int            @id @default(autoincrement())
-  username     String         @unique
-  email        String         @unique
-  password     String
-  avatar       String?
-  status       String
-  RefreshToken RefreshToken[]
+  id       Int     @id @default(autoincrement())
+  username String  @unique
+  email    String  @unique
+  password String
+  avatar   String?
+  status   String
+  spaces   Space[] @relation("UserSpaces")
 }
 
-model RefreshToken {
-  id        Int      @id @default(autoincrement())
-  token     String   @unique
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  expiresAt DateTime
+model Space {
+  id         Int    @id @default(autoincrement())
+  name       String
+  background String
+  elements   Json
+  userId     Int
+  user       User   @relation("UserSpaces", fields: [userId], references: [id])
 }
