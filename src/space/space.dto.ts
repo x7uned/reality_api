@@ -30,7 +30,7 @@ export class ElementDto {
   completed?: boolean;
 }
 
-export class GetSpaceDto {
+export class DeleteSpaceDto {
   @IsInt({ message: 'ID must be an integer.' })
   id: number;
 }

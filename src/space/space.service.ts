@@ -22,6 +22,33 @@ export class SpaceService {
     return null;
   }
 
+  async deleteSpace(spaceId: number, userId: number) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return { success: false, message: 'User not found' };
+    }
+
+    const space = await this.prisma.space.findUnique({
+      where: { id: spaceId },
+    });
+
+    if (!space) {
+      return { success: false, message: 'Space not found' };
+    }
+
+    if (space.userId !== user.id) {
+      return { success: false, message: 'Unauthorized' };
+    }
+
+    const result = await this.prisma.space.delete({
+      where: { id: spaceId },
+    });
+
+    if (result) {
+      return { success: true, message: 'Space deleted successfully' };
+    }
+  }
+
   async getMySpaces(userId: number) {
     const result = await this.prisma.user
       .findUnique({

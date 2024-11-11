@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Patch, Post, Query, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
 import { UpdateSpaceDto } from './space.dto';
 import { SpaceService } from './space.service';
 
@@ -21,6 +30,12 @@ export class SpaceController {
   async GetMySpaces(@Req() req: Request) {
     const userid = req['user'].sub;
     return this.spaceService.getMySpaces(Number(userid));
+  }
+
+  @Delete('delete')
+  async DeleteSpace(@Req() req: Request, @Query() qry: GetSpaceQuery) {
+    const userid = req['user'].sub;
+    return this.spaceService.deleteSpace(Number(qry.id), Number(userid));
   }
 
   @Patch('update')
