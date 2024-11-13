@@ -51,6 +51,9 @@ export class UpdateSpaceDto {
   })
   name: string;
 
+  @IsString({ message: 'Icon must be a string.' })
+  icon: string;
+
   @IsArray({ message: 'Elements must be an array.' })
   elements: ElementDto[];
 }

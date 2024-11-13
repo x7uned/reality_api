@@ -24,4 +24,5 @@ model Space {
   elements   Json
   userId     Int
   user       User   @relation("UserSpaces", fields: [userId], references: [id])
+  icon       String @default("default")
 }

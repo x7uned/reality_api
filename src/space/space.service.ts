@@ -58,6 +58,7 @@ export class SpaceService {
             select: {
               id: true,
               name: true,
+              icon: true,
             },
           },
         },
@@ -95,6 +96,7 @@ export class SpaceService {
         name: updateSpaceDto.name,
         background: updateSpaceDto.background,
         elements: JSON.stringify(updateSpaceDto.elements),
+        icon: updateSpaceDto.icon || 'default',
       },
     });
 
