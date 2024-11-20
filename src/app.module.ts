@@ -5,6 +5,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AuthMiddleware } from './auth/auth.middleware';
 import { AuthModule } from './auth/auth.module';
+import { CalendarController } from './calendar/calendar.controller';
+import { CalendarModule } from './calendar/calendar.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SpaceController } from './space/space.controller';
 import { SpaceModule } from './space/space.module';
@@ -33,6 +35,7 @@ import { UploadService } from './upload/upload.service';
     }),
     SpaceModule,
     UploadModule,
+    CalendarModule,
   ],
   providers: [UploadService],
 })
@@ -40,6 +43,11 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
-      .forRoutes('/auth/me', SpaceController, UploadController);
+      .forRoutes(
+        '/auth/me',
+        SpaceController,
+        UploadController,
+        CalendarController,
+      );
   }
 }

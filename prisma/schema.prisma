@@ -8,21 +8,54 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  username String  @unique
-  email    String  @unique
-  password String
-  avatar   String?
-  status   String
-  spaces   Space[] @relation("UserSpaces")
+  id         Int        @id @default(autoincrement())
+  username   String     @unique
+  email      String     @unique
+  password   String
+  avatar     String?
+  status     String
+  spaces     Space[]    @relation("UserSpaces")
+  categories Category[] @relation("UserCategories")
+  events     Event[]    @relation("UserEvents")
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @default(now()) @updatedAt
 }
 
 model Space {
-  id         Int    @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   name       String
   background String
   elements   Json
   userId     Int
-  user       User   @relation("UserSpaces", fields: [userId], references: [id])
-  icon       String @default("default")
+  user       User     @relation("UserSpaces", fields: [userId], references: [id])
+  icon       String   @default("default")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+}
+
+enum Style {
+  purple
+  red
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   @default("New Category")
+  createdAt DateTime @default(now())
+  style     String   @default("default")
+  userId    Int
+  user      User     @relation("UserCategories", fields: [userId], references: [id])
+  events    Event[]  @relation("EventCategory")
+}
+
+model Event {
+  id         Int       @id @default(autoincrement())
+  content    String
+  subContent String    @default("")
+  type       String    @default("event")
+  categoryId Int?
+  category   Category? @relation("EventCategory", fields: [categoryId], references: [id])
+  date       String
+  userId     Int
+  user       User      @relation("UserEvents", fields: [userId], references: [id])
 }
