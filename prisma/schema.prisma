@@ -55,7 +55,7 @@ model Event {
   type       String    @default("event")
   categoryId Int?
   category   Category? @relation("EventCategory", fields: [categoryId], references: [id])
-  date       String
+  date       DateTime  @default(now())
   userId     Int
   user       User      @relation("UserEvents", fields: [userId], references: [id])
 }

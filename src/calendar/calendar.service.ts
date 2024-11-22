@@ -28,6 +28,13 @@ export class CalendarService {
     try {
       const { content, subContent, date, categoryId } = createEventDto;
 
+      // Преобразуем дату из строки в объект Date
+      const eventDate = new Date(date);
+
+      if (isNaN(eventDate.getTime())) {
+        return { success: false, message: 'Invalid date format' };
+      }
+
       if (categoryId) {
         const category = await this.prisma.category.findUnique({
           where: { id: categoryId, userId: userId },
@@ -39,7 +46,7 @@ export class CalendarService {
       }
 
       const result = await this.prisma.event.create({
-        data: { content, subContent, date, categoryId, userId },
+        data: { content, subContent, date: eventDate, categoryId, userId },
       });
 
       if (result) {
@@ -47,6 +54,66 @@ export class CalendarService {
       }
     } catch (error) {
       console.error(error);
+    }
+  }
+
+  async getEvents(dateString: string, userId: number) {
+    try {
+      if (!dateString) {
+        throw new Error('Invalid date string format');
+      }
+
+      const startDate = new Date(dateString);
+      if (isNaN(startDate.getTime())) {
+        throw new Error('Invalid start date');
+      }
+
+      const tomorrow = new Date(startDate);
+      tomorrow.setDate(startDate.getDate() + 1);
+
+      const endOfWeek = new Date(startDate);
+      endOfWeek.setDate(startDate.getDate() + 7);
+
+      const events = await this.prisma.event.findMany({
+        where: {
+          userId,
+          date: {
+            gte: startDate,
+            lt: endOfWeek,
+          },
+        },
+        include: { category: true },
+      });
+
+      const todayEvents = events.filter((event) =>
+        this.isSameDay(event.date, startDate),
+      );
+      const tomorrowEvents = events.filter((event) =>
+        this.isSameDay(event.date, tomorrow),
+      );
+      const weekEvents = events.filter(
+        (event) =>
+          event.date >= startDate &&
+          event.date < endOfWeek &&
+          !this.isSameDay(event.date, tomorrow) &&
+          !this.isSameDay(event.date, startDate),
+      );
+
+      return {
+        success: true,
+        events: {
+          today: todayEvents,
+          tomorrow: tomorrowEvents,
+          week: weekEvents,
+        },
+      };
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      return {
+        success: false,
+        message: 'Failed to fetch events',
+        error: error.message,
+      };
     }
   }
 
@@ -66,8 +133,12 @@ export class CalendarService {
         calendar.map(async (day) => {
           try {
             if (day.fullDate) {
+              const fullDate = new Date(day.fullDate);
               const events = await this.prisma.event.findMany({
-                where: { date: day.fullDate, userId: userId },
+                where: {
+                  date: fullDate,
+                  userId: userId,
+                },
                 include: { category: true },
               });
               return { ...day, events };
@@ -97,7 +168,15 @@ export class CalendarService {
     }
   }
 
-  generateCalendar(date: Date): {
+  private isSameDay(date1: Date, date2: Date): boolean {
+    return (
+      date1.getDate() === date2.getDate() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getFullYear() === date2.getFullYear()
+    );
+  }
+
+  private generateCalendar(date: Date): {
     day: number | null;
     isCurrentMonth: boolean;
     fullDate: string | null;
@@ -117,7 +196,7 @@ export class CalendarService {
     const formatDate = (year: number, month: number, day: number): string => {
       return `${year}-${String(month + 1).padStart(2, '0')}-${String(
         day,
-      ).padStart(2, '0')}`;
+      ).padStart(2, '0')}T00:00:00.000Z`; // Указываем полный формат ISO
     };
 
     for (let i = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1; i > 0; i--) {
