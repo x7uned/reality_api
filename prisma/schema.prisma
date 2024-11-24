@@ -22,15 +22,17 @@ model User {
 }
 
 model Space {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   name       String
   background String
   elements   Json
   userId     Int
-  user       User     @relation("UserSpaces", fields: [userId], references: [id])
-  icon       String   @default("default")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now()) @updatedAt
+  user       User      @relation("UserSpaces", fields: [userId], references: [id])
+  categoryId Int?
+  category   Category? @relation("SpaceCategory", fields: [categoryId], references: [id])
+  icon       String    @default("default")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now()) @updatedAt
 }
 
 enum Style {
@@ -46,6 +48,7 @@ model Category {
   userId    Int
   user      User     @relation("UserCategories", fields: [userId], references: [id])
   events    Event[]  @relation("EventCategory")
+  spaces    Space[]  @relation("SpaceCategory")
 }
 
 model Event {

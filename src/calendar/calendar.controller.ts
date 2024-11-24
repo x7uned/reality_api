@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
 import { CreateCategoryDto, CreateEventDto } from './calendar.dto';
 import { CalendarService } from './calendar.service';
 
@@ -15,6 +23,18 @@ export class CalendarController {
     const userid = req['user'].sub;
     const date = qry.date;
     return this.calendarService.getCalendar(date, Number(userid));
+  }
+
+  @Delete('event')
+  async DeleteEvent(@Req() req: Request, @Query('id') id: number) {
+    const userid = req['user'].sub;
+    return this.calendarService.deleteEvent(Number(id), Number(userid));
+  }
+
+  @Get('categories')
+  async GetCategories(@Req() req: Request) {
+    const userid = req['user'].sub;
+    return this.calendarService.getCategories(Number(userid));
   }
 
   @Get('events')

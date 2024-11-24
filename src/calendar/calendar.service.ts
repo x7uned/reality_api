@@ -57,6 +57,32 @@ export class CalendarService {
     }
   }
 
+  async deleteEvent(eventId: number, userId: number) {
+    try {
+      if (!eventId) {
+        return { success: false, message: 'Invalid event id' };
+      }
+
+      const event = await this.prisma.event.findUnique({
+        where: { id: eventId, userId },
+      });
+
+      if (!event) {
+        return { success: false, message: "Event doesn't exist" };
+      }
+
+      const result = await this.prisma.event.delete({
+        where: { id: event.id },
+      });
+
+      if (result) {
+        return { success: true, result };
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   async getEvents(dateString: string, userId: number) {
     try {
       if (!dateString) {
@@ -112,6 +138,23 @@ export class CalendarService {
       return {
         success: false,
         message: 'Failed to fetch events',
+        error: error.message,
+      };
+    }
+  }
+
+  async getCategories(userId: number) {
+    try {
+      const categories = await this.prisma.category.findMany({
+        where: { userId },
+      });
+
+      return { success: true, categories };
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      return {
+        success: false,
+        message: 'Failed to fetch categories',
         error: error.message,
       };
     }

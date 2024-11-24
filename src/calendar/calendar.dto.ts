@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsString,
   MaxLength,
+  MinLength,
 } from 'class-validator';
 
 export class CreateCategoryDto {
@@ -20,6 +21,7 @@ export class CreateCategoryDto {
 export class CreateEventDto {
   @IsString()
   @IsNotEmpty()
+  @MinLength(1)
   @MaxLength(40)
   content: string;
 
@@ -33,5 +35,6 @@ export class CreateEventDto {
   categoryId?: number;
 
   @IsNotEmpty()
+  @IsString()
   date: string;
 }
