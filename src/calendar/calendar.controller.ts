@@ -3,11 +3,16 @@ import {
   Controller,
   Delete,
   Get,
+  Patch,
   Post,
   Query,
   Req,
 } from '@nestjs/common';
-import { CreateCategoryDto, CreateEventDto } from './calendar.dto';
+import {
+  CreateCategoryDto,
+  CreateEventDto,
+  UpdateEventDto,
+} from './calendar.dto';
 import { CalendarService } from './calendar.service';
 
 interface GetByDateQuery {
@@ -23,6 +28,15 @@ export class CalendarController {
     const userid = req['user'].sub;
     const date = qry.date;
     return this.calendarService.getCalendar(date, Number(userid));
+  }
+
+  @Patch('event')
+  async UpdateEvent(
+    @Req() req: Request,
+    @Body() updateEventDto: UpdateEventDto,
+  ) {
+    const userid = req['user'].sub;
+    return this.calendarService.updateEvent(updateEventDto, userid);
   }
 
   @Delete('event')

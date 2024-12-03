@@ -38,3 +38,28 @@ export class CreateEventDto {
   @IsString()
   date: string;
 }
+
+export class UpdateEventDto {
+  @IsNumber()
+  @IsNotEmpty()
+  id: number;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @MaxLength(40)
+  content: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  subContent?: string;
+
+  @IsOptional()
+  @IsNumber()
+  categoryId?: number;
+
+  @IsNotEmpty()
+  @IsString()
+  date: string;
+}

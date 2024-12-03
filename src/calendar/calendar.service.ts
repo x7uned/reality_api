@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateCategoryDto, CreateEventDto } from './calendar.dto';
+import {
+  CreateCategoryDto,
+  CreateEventDto,
+  UpdateEventDto,
+} from './calendar.dto';
 
 @Injectable()
 export class CalendarService {
@@ -24,11 +28,53 @@ export class CalendarService {
     }
   }
 
+  async updateEvent(updateEventDto: UpdateEventDto, userId: number) {
+    try {
+      const { id, content, subContent, date, categoryId } = updateEventDto;
+
+      const event = await this.prisma.event.findUnique({
+        where: { id, userId },
+      });
+
+      if (!event) {
+        return { success: false, message: "Event doesn't exist" };
+      }
+
+      const eventDate = new Date(date);
+
+      if (isNaN(eventDate.getTime())) {
+        return { success: false, message: 'Invalid date format' };
+      }
+
+      if (categoryId) {
+        const category = await this.prisma.category.findUnique({
+          where: { id: categoryId, userId: userId },
+        });
+
+        if (!category) {
+          return { success: false, message: "Category doesn't exist" };
+        }
+      }
+
+      const result = await this.prisma.event.update({
+        where: { id },
+        data: { content, subContent, date: eventDate, categoryId },
+      });
+
+      if (result) {
+        return { success: true, result };
+      } else {
+        return { success: false, message: 'Failed to update event' };
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   async createEvent(createEventDto: CreateEventDto, userId: number) {
     try {
       const { content, subContent, date, categoryId } = createEventDto;
 
-      // Преобразуем дату из строки в объект Date
       const eventDate = new Date(date);
 
       if (isNaN(eventDate.getTime())) {
